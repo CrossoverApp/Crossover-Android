@@ -1,5 +1,8 @@
 package com.gmail.nelsonr462.crossover;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +24,10 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +35,9 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private ParseUser mCurrentUser;
+    private ArrayList<String> mTabsId;
+    private ArrayList<String> mTabs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,19 +137,57 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        ParseQuery query = ParseQuery.getQuery("TabGroup");
+        query.whereEqualTo("user", mCurrentUser);
+        query.whereEqualTo("title", item.getTitle());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> tabs, ParseException e) {
+                if (e == null) {
+                    for (ParseObject tab : tabs) {
+                        JSONArray mTabs = tab.getJSONArray("tabs");
+                        if (mTabs != null) {
+                            try {
+                                mTabs.get(i) doesn't return anything...
+                                Log.v("MainActivityA", mTabs.get(0).toString() );
+                                for (int i = 0; i < mTabs.length(); i++) {
+                                    mTabsId.add(mTabs.get(i).toString());
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+
+                        }
+                    }
+                } else {
+                    //TODO
+                }
+            }
+        });
+
+
+        Log.d("MainActivityA", "STILL WORKING");
+        //Get the tabs with the corresponding tab ObjectId from mTabsId
+        ParseQuery<ParseObject> queryTab = ParseQuery.getQuery("Tab");
+        queryTab.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> tabs, ParseException e) {
+                for (ParseObject tab : tabs) {
+                    if (e == null && mTabsId.contains(tab.getObjectId().toString())) {
+                        mTabs.add(tab.getString("url"));
+                    } else {
+
+                    }
+                }
+            }
+        });
+
+
+//        //Switch to the corresponding Tabgroup that has the specific tabs
+//        FragmentManager fragmentManager = getFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        ListUrlFragment mFragment = ListUrlFragment.newInstance(mTabs);
+//        fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment ).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
