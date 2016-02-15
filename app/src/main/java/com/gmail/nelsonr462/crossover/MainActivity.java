@@ -3,6 +3,7 @@ package com.gmail.nelsonr462.crossover;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,9 +27,9 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -74,11 +75,21 @@ public class MainActivity extends AppCompatActivity
                         if (tempTabs != null) {
                             try {
                                 for (int i = 0; i < tempTabs.length(); i++) {
-                                    Tab temp = new Tab();
-                                    temp = temp.getTab(tempTabs.getString(i));
-                                    mTabs[i] = temp;
+                                    mTabs[i] = new AsyncTask<String,Void,Tab>() {
+                                        @Override
+                                        protected Tab doInBackground(String... params) {
+                                            Tab temp = new Tab();
+                                            temp = temp.getTab(params[0]);
+                                            return temp;
+                                        }
+                                    }.execute(tempTabs.getString(i)).get();
+
                                 }
                             } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            } catch (ExecutionException e1) {
                                 e1.printStackTrace();
                             }
                         }
