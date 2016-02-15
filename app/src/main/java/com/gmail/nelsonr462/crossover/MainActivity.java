@@ -1,6 +1,5 @@
 package com.gmail.nelsonr462.crossover;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -27,6 +26,7 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,16 +34,13 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private ParseUser mCurrentUser;
-    private ArrayList<String> mTabsId = new ArrayList<String>();
-    private ArrayList<String> mTabs = new ArrayList<String>();
+    private TabGroup[] mTabGroups;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -62,34 +59,110 @@ public class MainActivity extends AppCompatActivity
             Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
         }
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
+        query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
 
-        final Menu drawerMenu = navigationView.getMenu();
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("TabGroup");
-        query.whereEqualTo("user", mCurrentUser);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> tabGroups, ParseException e) {
+                mTabGroups = new TabGroup[tabGroups.size()];
                 if (e == null) {
-                    for (ParseObject tabGroup : tabGroups) {
-                        drawerMenu.add(tabGroup.getString("title"));
+                    int a = 0;
+                    for (ParseObject mTabGroup : tabGroups) {
+                        JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
+                        Tab[] mTabs = new Tab[tempTabs.length()];
+                        if (tempTabs != null) {
+                            try {
+                                for (int i = 0; i < tempTabs.length(); i++) {
+                                    Tab temp = new Tab();
+                                    temp = temp.getTab(tempTabs.getString(i));
+                                    mTabs[i] = temp;
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        TabGroup temp = new TabGroup(
+                                mTabGroup.getObjectId(),
+                                mTabGroup.getString(ParseConstant.KEY_TABGROUP_TITLE),
+                                mTabs
+                        );
+                        mTabGroups[a] = temp;
+                        a++;
                     }
+
                 } else {
-                    //TODO
+
                 }
+
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+
+                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                Menu drawerMenu = navigationView.getMenu();
+
+                for (int i = 0; i < mTabGroups.length; i++) {
+                    TabGroup tabGroup = mTabGroups[i];
+                    if (!tabGroup.getTitle().equals(getBaseContext().getString(R.string.first_group_name))) {
+                        drawerMenu.add(0, i, i + 1, tabGroup.getTitle());
+                    } else {
+                        drawerMenu.add(0, i, 0, getString(R.string.first_group_name));
+                    }
+                }
+
+                navigationView.setNavigationItemSelectedListener(MainActivity.this);
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        MainActivity.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                drawer.setDrawerListener(toggle);
+                toggle.syncState();
+
             }
         });
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
+        query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
 
-        navigationView.setNavigationItemSelectedListener(this);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> tabGroups, ParseException e) {
+                mTabGroups = new TabGroup[tabGroups.size()];
+                if (e == null) {
+                    int a = 0;
+                    for (ParseObject mTabGroup : tabGroups) {
+                        JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
+                        Tab[] mTabs = new Tab[tempTabs.length()];
+                        if (tempTabs != null) {
+                            try {
+                                for (int i = 0; i < tempTabs.length(); i++) {
+                                    Tab temp = new Tab();
+                                    temp = temp.getTab(tempTabs.getString(i));
+                                    mTabs[i] = temp;
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        TabGroup temp = new TabGroup(
+                                mTabGroup.getObjectId(),
+                                mTabGroup.getString(ParseConstant.KEY_TABGROUP_TITLE),
+                                mTabs
+                        );
+                        mTabGroups[a] = temp;
+                        a++;
+                    }
 
+                } else {
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+                }
+
+            }
+        });
     }
 
     @Override
@@ -126,62 +199,46 @@ public class MainActivity extends AppCompatActivity
             navigateToLogin();
         }
 
+        if (id == R.id.action_addurl) {
+            Intent intent = new Intent(this, AddUrlActivity.class);
+            ArrayList<String> temp = new ArrayList<String>();
+            ArrayList<String> tempId = new ArrayList<String>();
+            for (TabGroup tabGroup : mTabGroups) {
+                temp.add(tabGroup.getTitle());
+                tempId.add(tabGroup.getObjectId());
+            }
+            intent.putStringArrayListExtra("TabGroups", temp);
+            intent.putStringArrayListExtra("TabGroupsId", tempId);
+            startActivity(intent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        mTabsId = new ArrayList<String>();
-        mTabs = new ArrayList<String>();
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        ParseQuery query = ParseQuery.getQuery("TabGroup");
-        query.whereEqualTo("user", mCurrentUser);
-        query.whereEqualTo("title", item.getTitle());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> tabs, ParseException e) {
-                if (e == null) {
-                    for (ParseObject tab : tabs) {
-                        JSONArray tempTabs = tab.getJSONArray("tabs");
-                        if (tempTabs != null) {
-                            try {
-                                for (int i = 0; i < tempTabs.length(); i++) {
-                                    mTabsId.add(tempTabs.getString(i));
-                                }
-                                //Get the tabs with the corresponding tab ObjectId from mTabsId
-                                ParseQuery<ParseObject> queryTab = ParseQuery.getQuery("Tab");
-                                queryTab.findInBackground(new FindCallback<ParseObject>() {
-                                    @Override
-                                    public void done(List<ParseObject> tabs, ParseException e) {
-                                        for (ParseObject tab : tabs) {
-                                            if (e == null && mTabsId.contains(tab.getObjectId())) {
-                                                mTabs.add(tab.getString("url"));
-                                            } else {
 
-                                            }
-                                        }
+        ArrayList<String> mTabs = new ArrayList<String>();
 
-                                        //Switch to the corresponding Tabgroup that has the specific tabs
-                                        FragmentManager fragmentManager = getFragmentManager();
-                                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                        ListUrlFragment mFragment = ListUrlFragment.newInstance(mTabs);
-                                        fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
-                                    }
-                                });
+        TabGroup tabGroup = mTabGroups[id];
+        if (tabGroup.getTabs().length != 0) {
+            for (Tab tab : tabGroup.getTabs()) {
+                try {
+                    mTabs.add(tab.getUrl());
+                } catch (Exception e) {
 
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-                } else {
-                    //TODO
                 }
             }
-        });
+        }
 
+        //Switch to the corresponding Tabgroup that has the specific tabs
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        ListUrlFragment mFragment = ListUrlFragment.newInstance(mTabs);
+        fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -195,5 +252,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
 
     }
+
 
 }
