@@ -3,9 +3,7 @@ package com.gmail.nelsonr462.crossover;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
+
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -29,7 +31,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -43,14 +45,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         // *** PARSE LOGIN CHECK *** //
         mCurrentUser = ParseUser.getCurrentUser();
@@ -59,6 +61,35 @@ public class MainActivity extends AppCompatActivity
         } else {
             Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
         }
+
+
+        final FloatingActionsMenu mManageActions = (FloatingActionsMenu) findViewById(R.id.manage_actions);
+
+        RelativeLayout mFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
+        mFrameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mManageActions.collapseImmediately();
+            }
+        });
+
+        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.floating_button_add);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AddUrlActivity.class);
+                ArrayList<String> temp = new ArrayList<>();
+                ArrayList<String> tempId = new ArrayList<>();
+                for (TabGroup tabGroup : mTabGroups) {
+                    temp.add(tabGroup.getTitle());
+                    tempId.add(tabGroup.getObjectId());
+                }
+                intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroups), temp);
+                intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroupsId), tempId);
+                startActivity(intent);
+            }
+        });
+
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
         query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
@@ -72,26 +103,14 @@ public class MainActivity extends AppCompatActivity
                     for (ParseObject mTabGroup : tabGroups) {
                         JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
                         Tab[] mTabs = new Tab[tempTabs.length()];
-                        if (tempTabs != null) {
-                            try {
-                                for (int i = 0; i < tempTabs.length(); i++) {
-                                    mTabs[i] = new AsyncTask<String,Void,Tab>() {
-                                        @Override
-                                        protected Tab doInBackground(String... params) {
-                                            Tab temp = new Tab();
-                                            temp = temp.getTab(params[0]);
-                                            return temp;
-                                        }
-                                    }.execute(tempTabs.getString(i)).get();
-
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            } catch (InterruptedException e1) {
-                                e1.printStackTrace();
-                            } catch (ExecutionException e1) {
-                                e1.printStackTrace();
+                        try {
+                            for (int i = 0; i < tempTabs.length(); i++) {
+                                Tab temp = new Tab();
+                                temp = temp.getTab(tempTabs.getString(i));
+                                mTabs[i] = temp;
                             }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
                         }
                         TabGroup temp = new TabGroup(
                                 mTabGroup.getObjectId(),
@@ -148,16 +167,14 @@ public class MainActivity extends AppCompatActivity
                     for (ParseObject mTabGroup : tabGroups) {
                         JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
                         Tab[] mTabs = new Tab[tempTabs.length()];
-                        if (tempTabs != null) {
-                            try {
-                                for (int i = 0; i < tempTabs.length(); i++) {
-                                    Tab temp = new Tab();
-                                    temp = temp.getTab(tempTabs.getString(i));
-                                    mTabs[i] = temp;
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
+                        try {
+                            for (int i = 0; i < tempTabs.length(); i++) {
+                                Tab temp = new Tab();
+                                temp = temp.getTab(tempTabs.getString(i));
+                                mTabs[i] = temp;
                             }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
                         }
                         TabGroup temp = new TabGroup(
                                 mTabGroup.getObjectId(),
@@ -200,6 +217,7 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -212,14 +230,14 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_addurl) {
             Intent intent = new Intent(this, AddUrlActivity.class);
-            ArrayList<String> temp = new ArrayList<String>();
-            ArrayList<String> tempId = new ArrayList<String>();
+            ArrayList<String> temp = new ArrayList<>();
+            ArrayList<String> tempId = new ArrayList<>();
             for (TabGroup tabGroup : mTabGroups) {
                 temp.add(tabGroup.getTitle());
                 tempId.add(tabGroup.getObjectId());
             }
-            intent.putStringArrayListExtra("TabGroups", temp);
-            intent.putStringArrayListExtra("TabGroupsId", tempId);
+            intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroups), temp);
+            intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroupsId), tempId);
             startActivity(intent);
         }
 
@@ -231,8 +249,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        ArrayList<String> mTabs = new ArrayList<String>();
+        try {
+            getSupportActionBar().setTitle(item.getTitle());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        ArrayList<String> mTabs = new ArrayList<>();
 
         TabGroup tabGroup = mTabGroups[id];
         if (tabGroup.getTabs().length != 0) {
@@ -240,7 +262,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     mTabs.add(tab.getUrl());
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
         }

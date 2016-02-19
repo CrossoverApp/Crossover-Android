@@ -29,4 +29,6 @@
     <string name="title_activity_add_url">AddUrlActivity</string>
     <string name="first_group_name">Home Group</string>
     <string name="action_addUrl">Add a URL</string>
+    <string name="addUrl_intent_extra_stringArray_TabGroups">TabGroups</string>
+    <string name="addUrl_intent_extra_stringArray_TabGroupsId">TabGroupsId</string>
 </resources>

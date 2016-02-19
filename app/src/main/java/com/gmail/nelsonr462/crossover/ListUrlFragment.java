@@ -21,7 +21,7 @@ public class ListUrlFragment extends ListFragment {
     protected ArrayAdapter<String> adapter;
     protected Button mSelectButton;
     protected Button mAllButton;
-    protected ArrayList<String> urlSelect = new ArrayList<String>();
+    protected ArrayList<String> urlSelect = new ArrayList<>();
 
     public static ListUrlFragment newInstance(ArrayList<String> tabs) {
         ListUrlFragment fragment = new ListUrlFragment();
@@ -50,7 +50,7 @@ public class ListUrlFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_checked, mTabs);
+        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_checked, mTabs);
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
