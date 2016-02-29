@@ -140,7 +140,8 @@ public class ListUrlFragment extends ListFragment {
         if (!url.contains(".")) {
             url = url + ".com";
         }
-        return Uri.parse(url);
+        Uri uri = Uri.parse(url);
+        return uri;
     }
 
 
