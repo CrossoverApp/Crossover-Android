@@ -10,10 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
+        <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/select_specific_urls_button_text"
+            android:textOff="@string/select_specific_urls_button_textOff"
             android:id="@+id/select_specific_urls_button"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="35dp"

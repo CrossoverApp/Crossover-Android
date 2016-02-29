@@ -24,7 +24,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="select_specific_urls_button_text">Select Urls</string>
+    <string name="select_specific_urls_button_textOff">Select Urls</string>
+    <string name="select_specific_urls_button_textOn">Open Selected URLs</string>
     <string name="open_all_urls_button_text">Open All</string>
     <string name="title_activity_add_url">AddUrlActivity</string>
     <string name="first_group_name">Home Group</string>

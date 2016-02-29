@@ -1,10 +1,8 @@
 package com.gmail.nelsonr462.crossover;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -14,14 +12,13 @@ import java.util.List;
 /**
  * Created by Jeffrey on 2/14/2016.
  */
-public class Tab {
+public class Tab implements Parcelable{
     private String mObjectId;
     private String mTitle;
     private String mUrl;
 
     //Used in getTab Method
-    private Tab mTab;
-    private boolean taskDone;
+    private static Tab mTab;
 
     public Tab(String id, String title, String url) {
         mObjectId = id;
@@ -33,7 +30,7 @@ public class Tab {
 
     }
 
-    public Tab getTab(String id) {
+    public static Tab getTab(String id) {
         //Get all information within the tab with the corresponding object ID
         ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TAB);
         try {
@@ -73,5 +70,15 @@ public class Tab {
 
     public void setUrl(String url) {
         mUrl = url;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 }

@@ -2,6 +2,7 @@ package com.gmail.nelsonr462.crossover;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -38,21 +39,12 @@ public class MainActivity extends AppCompatActivity
 
     private ParseUser mCurrentUser;
     private TabGroup[] mTabGroups;
+    private static FloatingActionsMenu mManageActions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         // *** PARSE LOGIN CHECK *** //
         mCurrentUser = ParseUser.getCurrentUser();
@@ -62,8 +54,7 @@ public class MainActivity extends AppCompatActivity
             Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
         }
 
-
-        final FloatingActionsMenu mManageActions = (FloatingActionsMenu) findViewById(R.id.manage_actions);
+        mManageActions = (FloatingActionsMenu) findViewById(R.id.manage_actions);
 
         RelativeLayout mFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
         mFrameLayout.setOnClickListener(new View.OnClickListener() {
@@ -90,107 +81,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        updateTabGroups("Please Wait...","Loading Your Tabs...");
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
-        query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
-
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> tabGroups, ParseException e) {
-                mTabGroups = new TabGroup[tabGroups.size()];
-                if (e == null) {
-                    int a = 0;
-                    for (ParseObject mTabGroup : tabGroups) {
-                        JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
-                        Tab[] mTabs = new Tab[tempTabs.length()];
-                        try {
-                            for (int i = 0; i < tempTabs.length(); i++) {
-                                Tab temp = new Tab();
-                                temp = temp.getTab(tempTabs.getString(i));
-                                mTabs[i] = temp;
-                            }
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
-                        }
-                        TabGroup temp = new TabGroup(
-                                mTabGroup.getObjectId(),
-                                mTabGroup.getString(ParseConstant.KEY_TABGROUP_TITLE),
-                                mTabs
-                        );
-                        mTabGroups[a] = temp;
-                        a++;
-                    }
-
-                } else {
-
-                }
-
-                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                setSupportActionBar(toolbar);
-
-                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-                Menu drawerMenu = navigationView.getMenu();
-
-                for (int i = 0; i < mTabGroups.length; i++) {
-                    TabGroup tabGroup = mTabGroups[i];
-                    if (!tabGroup.getTitle().equals(getBaseContext().getString(R.string.first_group_name))) {
-                        drawerMenu.add(0, i, i + 1, tabGroup.getTitle());
-                    } else {
-                        drawerMenu.add(0, i, 0, getString(R.string.first_group_name));
-                    }
-                }
-
-                navigationView.setNavigationItemSelectedListener(MainActivity.this);
-
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                        MainActivity.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                drawer.setDrawerListener(toggle);
-                toggle.syncState();
-
-            }
-        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
-        query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
-
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> tabGroups, ParseException e) {
-                mTabGroups = new TabGroup[tabGroups.size()];
-                if (e == null) {
-                    int a = 0;
-                    for (ParseObject mTabGroup : tabGroups) {
-                        JSONArray tempTabs = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
-                        Tab[] mTabs = new Tab[tempTabs.length()];
-                        try {
-                            for (int i = 0; i < tempTabs.length(); i++) {
-                                Tab temp = new Tab();
-                                temp = temp.getTab(tempTabs.getString(i));
-                                mTabs[i] = temp;
-                            }
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
-                        }
-                        TabGroup temp = new TabGroup(
-                                mTabGroup.getObjectId(),
-                                mTabGroup.getString(ParseConstant.KEY_TABGROUP_TITLE),
-                                mTabs
-                        );
-                        mTabGroups[a] = temp;
-                        a++;
-                    }
-
-                } else {
-
-                }
-
-            }
-        });
+        updateTabGroups("","Loading..");
     }
 
     @Override
@@ -254,23 +152,13 @@ public class MainActivity extends AppCompatActivity
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        ArrayList<String> mTabs = new ArrayList<>();
 
         TabGroup tabGroup = mTabGroups[id];
-        if (tabGroup.getTabs().length != 0) {
-            for (Tab tab : tabGroup.getTabs()) {
-                try {
-                    mTabs.add(tab.getUrl());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
         //Switch to the corresponding Tabgroup that has the specific tabs
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        ListUrlFragment mFragment = ListUrlFragment.newInstance(mTabs);
+        ListUrlFragment mFragment = ListUrlFragment.newInstance(tabGroup.getObjectId(),tabGroup.getTabs());
         fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -286,5 +174,81 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void updateTabGroups(String title, String message) {
+
+        final ProgressDialog mProgressDialog = new ProgressDialog(MainActivity.this);
+        mProgressDialog.setTitle(title);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.show();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
+        query.whereEqualTo(ParseConstant.KEY_TABGROUP_USER, mCurrentUser);
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> allTabGroups, ParseException e) {
+                mTabGroups = new TabGroup[allTabGroups.size()];
+                if (e == null) {
+                    int a = 0;
+                    for (ParseObject mTabGroup : allTabGroups) {
+                        JSONArray tempTab = mTabGroup.getJSONArray(ParseConstant.KEY_TABGROUP_TABS);
+                        Tab[] mTabs = new Tab[tempTab.length()];
+                        try {
+                            for (int i = 0; i < tempTab.length(); i++) {
+                                mTabs[i] = Tab.getTab(tempTab.getString(i));
+                            }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+                        TabGroup temp = new TabGroup(
+                                mTabGroup.getObjectId(),
+                                mTabGroup.getString(ParseConstant.KEY_TABGROUP_TITLE),
+                                mTabs
+                        );
+                        mTabGroups[a] = temp;
+                        a++;
+                    }
+
+                } else {
+
+                }
+
+                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                Menu drawerMenu = navigationView.getMenu();
+                drawerMenu.clear();
+
+                for (int i = 0; i < mTabGroups.length; i++) {
+                    TabGroup tabGroup = mTabGroups[i];
+                    if (!tabGroup.getTitle().equals(getBaseContext().getString(R.string.first_group_name))) {
+                        drawerMenu.add(0, i, i + 1, tabGroup.getTitle());
+                    } else {
+                        drawerMenu.add(0, i, 0, getString(R.string.first_group_name));
+                    }
+                }
+
+                navigationView.setNavigationItemSelectedListener(MainActivity.this);
+
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        MainActivity.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                drawer.setDrawerListener(toggle);
+                toggle.syncState();
+
+                mProgressDialog.dismiss();
+
+            }
+        });
+    }
+
+    public static void fabMenuHide() {
+        mManageActions.setVisibility(View.INVISIBLE);
+    }
+
+    public static void fabMenuShow() {
+        mManageActions.setVisibility(View.VISIBLE);
+    }
 
 }
