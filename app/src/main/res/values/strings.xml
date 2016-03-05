@@ -32,4 +32,8 @@
     <string name="action_addUrl">Add a URL</string>
     <string name="addUrl_intent_extra_stringArray_TabGroups">TabGroups</string>
     <string name="addUrl_intent_extra_stringArray_TabGroupsId">TabGroupsId</string>
+    <string name="item_deleted">Swipe again to DELETE</string>
+    <string name="tap_to_undo">Tap here to undo</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_url_confirmText">Confirm</string>
 </resources>

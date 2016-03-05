@@ -32,15 +32,27 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
 
-        <ListView
+        <com.nhaarman.listviewanimations.itemmanipulation.DynamicListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@android:id/list"
-            android:layout_marginTop="10dp"
+            android:id="@+id/dynamiclistview"
+            android:layout_marginTop="13dp"
             android:layout_marginBottom="10dp"
             android:layout_below="@+id/open_all_urls_button"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listview"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="invisible"
+            android:layout_below="@+id/open_all_urls_button"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
+
     </RelativeLayout>
 
 </FrameLayout>

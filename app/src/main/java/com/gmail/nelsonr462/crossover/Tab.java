@@ -20,6 +20,24 @@ public class Tab implements Parcelable{
     //Used in getTab Method
     private static Tab mTab;
 
+    public static Tab[] dragTopNBot(Tab[] getTabs,int startPosition, int endPosition){
+        Tab mTab = getTabs[startPosition];
+        for (int i = startPosition ; i < endPosition ; i++ ) {
+            getTabs[i] = getTabs[i+1];
+        }
+        getTabs[endPosition] = mTab;
+        return getTabs;
+    }
+
+    public static Tab[] dragBotNTop(Tab[] getTabs,int startPosition, int endPosition){
+        Tab mTab = getTabs[startPosition];
+        for (int i = startPosition ; i > endPosition ; i-- ) {
+            getTabs[i] = getTabs[i-1];
+        }
+        getTabs[endPosition] = mTab;
+        return getTabs;
+    }
+
     public Tab(String id, String title, String url) {
         mObjectId = id;
         mTitle = title;

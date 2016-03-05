@@ -54,33 +54,6 @@ public class MainActivity extends AppCompatActivity
             Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
         }
 
-        mManageActions = (FloatingActionsMenu) findViewById(R.id.manage_actions);
-
-        RelativeLayout mFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
-        mFrameLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mManageActions.collapseImmediately();
-            }
-        });
-
-        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.floating_button_add);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AddUrlActivity.class);
-                ArrayList<String> temp = new ArrayList<>();
-                ArrayList<String> tempId = new ArrayList<>();
-                for (TabGroup tabGroup : mTabGroups) {
-                    temp.add(tabGroup.getTitle());
-                    tempId.add(tabGroup.getObjectId());
-                }
-                intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroups), temp);
-                intent.putStringArrayListExtra(getString(R.string.addUrl_intent_extra_stringArray_TabGroupsId), tempId);
-                startActivity(intent);
-            }
-        });
-
         updateTabGroups("Please Wait...","Loading Your Tabs...");
 
     }
@@ -158,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         //Switch to the corresponding Tabgroup that has the specific tabs
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        ListUrlFragment mFragment = ListUrlFragment.newInstance(tabGroup.getObjectId(),tabGroup.getTabs());
+        ListUrlFragment mFragment = ListUrlFragment.newInstance(tabGroup.getObjectId(), tabGroup.getTabs());
         fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -234,6 +207,7 @@ public class MainActivity extends AppCompatActivity
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                         MainActivity.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 drawer.setDrawerListener(toggle);
                 toggle.syncState();
 
@@ -243,12 +217,12 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    public static void fabMenuHide() {
-        mManageActions.setVisibility(View.INVISIBLE);
-    }
-
-    public static void fabMenuShow() {
-        mManageActions.setVisibility(View.VISIBLE);
+    public void updateTabGroups(String id, Tab[] mTabs) {
+        for ( int i = 0 ; i < mTabGroups.length ; i++ ) {
+            if ( mTabGroups[i].getObjectId().equals(id) ) {
+                mTabGroups[i].setTabs(mTabs);
+            }
+        }
     }
 
 }
