@@ -6,8 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,10 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
-
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -39,7 +33,6 @@ public class MainActivity extends AppCompatActivity
 
     private ParseUser mCurrentUser;
     private TabGroup[] mTabGroups;
-    private static FloatingActionsMenu mManageActions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,9 +211,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateTabGroups(String id, Tab[] mTabs) {
-        for ( int i = 0 ; i < mTabGroups.length ; i++ ) {
-            if ( mTabGroups[i].getObjectId().equals(id) ) {
-                mTabGroups[i].setTabs(mTabs);
+        for ( TabGroup temp : mTabGroups ) {
+            if ( temp.getObjectId().equals(id) ) {
+                temp.setTabs(mTabs);
             }
         }
     }

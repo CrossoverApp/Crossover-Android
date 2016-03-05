@@ -9,18 +9,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -49,10 +46,8 @@ public class ListUrlFragment extends Fragment {
     private ArrayList<String> mTabsView;
     private ArrayList<String> mTabs;
     private DynamicListView mDynamicListView;
-    private ListView mListView;
     private String curGroupId;
     private Tab[] getTabs;
-    protected CheckedAdapter<String> adapter;
     protected ToggleButton mSelectButton;
     protected Button mAllButton;
     protected ArrayList<String> urlSelect = new ArrayList<>();
@@ -101,6 +96,8 @@ public class ListUrlFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        setDragNSortAdapter();
+
         mAllButton = (Button) getView().findViewById(R.id.open_all_urls_button);
         mAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,30 +110,34 @@ public class ListUrlFragment extends Fragment {
         });
 
         mSelectButton = (ToggleButton) getView().findViewById(R.id.select_specific_urls_button);
+        final ArrayList<CheckedTextView> mSelectedCheckTextView = new ArrayList<>();
         mSelectButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    showAllCheckMarks();
                     mSelectButton.setTextOn(getString(R.string.select_specific_urls_button_textOn));
-                    mDynamicListView.setVisibility(View.INVISIBLE);
-                    mListView = (ListView) getView().findViewById(R.id.listview);
-                    mListView.setVisibility(View.VISIBLE);
-                    adapter = new CheckedAdapter<>(getActivity(), android.R.layout.simple_list_item_checked, mTabsView);
-                    mListView.setAdapter(adapter);
-
-                    mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                    mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    mDynamicListView.setOnItemClickListener(new MyOnItemClickListener(mDynamicListView) {
                         @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                            if (mListView.isItemChecked(position)) {
-                                // add the URL
-                                urlSelect.add(mTabs.get(position));
-                            } else {
-                                // remove the URL
+                        public void onClick(DynamicListView listView, View v, int position) {
+                            CheckedTextView mCheckedTextView = (CheckedTextView) v.findViewById(R.id.list_row_draganddrop_checkbox);
+                            if (mCheckedTextView.isChecked()) {
+                                mCheckedTextView.setChecked(false);
+                                mSelectedCheckTextView.remove(mCheckedTextView);
                                 urlSelect.remove(mTabs.get(position));
+                            } else {
+                                mCheckedTextView.setChecked(true);
+                                urlSelect.add(mTabs.get(position));
+                                mSelectedCheckTextView.add(mCheckedTextView);
                             }
+                        }
 
+                        @Override
+                        public void onSingleClick(DynamicListView mListView, View v, int position) {
+                        }
+
+                        @Override
+                        public void onDoubleClick(View v) {
                         }
                     });
 
@@ -164,10 +165,9 @@ public class ListUrlFragment extends Fragment {
                     } else {
                         //Display a dialog here!
                     }
+                    setDragNSortAdapter();
                     mSelectButton.setTextOff(getString(R.string.select_specific_urls_button_textOff));
                     mAllButton.setText(getString(R.string.open_all_urls_button_text));
-                    mListView.setVisibility(View.INVISIBLE);
-                    mDynamicListView.setVisibility(View.VISIBLE);
                     mAllButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -181,6 +181,9 @@ public class ListUrlFragment extends Fragment {
             }
         });
 
+    }
+
+    private void setDragNSortAdapter() {
         ArrayAdapter<String> myAdapter = new DragNDropAdapter(getActivity(), mTabsView);
         SimpleSwipeUndoAdapter simpleSwipeUndoAdapter = new SimpleSwipeUndoAdapter(myAdapter, getActivity(), new MyOnDismissCallback(myAdapter));
         SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(simpleSwipeUndoAdapter);
@@ -191,11 +194,32 @@ public class ListUrlFragment extends Fragment {
         mDynamicListView.setDraggableManager(new TouchViewDraggableManager(R.id.list_row_draganddrop_touchview));
         mDynamicListView.setOnItemMovedListener(new MyOnItemMovedListener(myAdapter));
         mDynamicListView.setOnItemLongClickListener(new MyOnItemLongClickListener(mDynamicListView));
-        mDynamicListView.setOnItemClickListener(new MyOnItemClickListener(mDynamicListView));
+        mDynamicListView.setOnItemClickListener(new MyOnItemClickListener(mDynamicListView) {
+            @Override
+            public void onClick(DynamicListView listView, View v, int position) {
+
+            }
+
+            @Override
+            public void onSingleClick(DynamicListView listView, View v, int position) {
+                Log.v("Main", "hi");
+            }
+
+            @Override
+            public void onDoubleClick(View v) {
+
+            }
+        });
         mDynamicListView.enableSimpleSwipeUndo();
-
-
     }
+
+    private void showAllCheckMarks() {
+        ArrayAdapter<String> mAdapter = new DragNDropAdapter(getActivity(), mTabsView,0);
+        SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(mAdapter);
+        animationAdapter.setAbsListView(mDynamicListView);
+        mDynamicListView.setAdapter(animationAdapter);
+    }
+
 
     private Uri convertToUri(String url) {
         if (!url.contains("http://")) {
@@ -204,9 +228,9 @@ public class ListUrlFragment extends Fragment {
         if (!url.contains(".")) {
             url = url + ".com";
         }
-        Uri uri = Uri.parse(url);
-        return uri;
+        return Uri.parse(url);
     }
+
 
     public class MyOnItemMovedListener implements OnItemMovedListener {
 
@@ -291,7 +315,7 @@ public class ListUrlFragment extends Fragment {
 
     }
 
-    private class MyOnItemClickListener implements AdapterView.OnItemClickListener {
+    private abstract class MyOnItemClickListener implements AdapterView.OnItemClickListener {
 
         private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
 
@@ -302,25 +326,22 @@ public class ListUrlFragment extends Fragment {
             mListView = listView;
         }
 
+
         @Override
         public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-
+            onClick(mListView, view, position);
             long clickTime = System.currentTimeMillis();
             if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA){
-                onDoubleClick(view,position);
+                onDoubleClick(view);
             } else {
-                onSingleClick(view);
+                onSingleClick(mListView, view, position);
             }
             lastClickTime = clickTime;
         }
 
-        public void onSingleClick(View v) {
-            Log.v("MainActivity","single click");
-        }
-
-        public void onDoubleClick(View v, int position) {
-            Log.v("MainActivity", "double click");
-        }
+        public abstract void onClick(DynamicListView listView,View v,int position);
+        public abstract void onSingleClick(DynamicListView listView,View v,int position);
+        public abstract void onDoubleClick(View v);
 
     }
 
