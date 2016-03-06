@@ -9,13 +9,12 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="755c4a39-b001-442e-9c28-1c5f9b7e6e1c" name="Default" comment="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textview of the same name! I think the problem occurs with the set tag method in the DragNSortAdapter">
+    <list default="true" id="755c4a39-b001-442e-9c28-1c5f9b7e6e1c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/cache.properties.lock" afterPath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/cache.properties.lock" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/fileHashes.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/fileSnapshots.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.8/taskArtifacts/taskArtifacts.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/Tab.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/Tab.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Crossover-Android2.iws" />
@@ -57,8 +56,8 @@
       <file leaf-file-name="ListUrlFragment.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3325893">
-              <caret line="499" column="51" selection-start-line="499" selection-start-column="51" selection-end-line="499" selection-end-column="51" />
+            <state vertical-scroll-proportion="0.4800995">
+              <caret line="356" column="20" selection-start-line="356" selection-start-column="20" selection-end-line="356" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -1764,8 +1763,8 @@
         <option value="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/MainActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/Tab.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/DragNDropAdapter.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/fragment_list_url_item_handler.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java" />
       </list>
     </option>
   </component>
@@ -2098,7 +2097,13 @@
       <option name="project" value="LOCAL" />
       <updated>1457171300696</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textviews that have the same name! I think the problem occurs within the DragNSortAdapter set tag method.">
+      <created>1457227755890</created>
+      <option name="number" value="00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1457227755890</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -2111,7 +2116,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962447" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3943662" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3943662" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
@@ -2120,7 +2125,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32957748" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32957748" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2155,7 +2160,8 @@
     <MESSAGE value="Implemented:&#10;&#10;Checkmarks for select urls, cleaned up the code a bit.&#10;&#10;Need:&#10;&#10;Add, Edit, Navigation Drawer.&#10;&#10;Problems:&#10;I forgot to add files to commit in the last push!" />
     <MESSAGE value="Implemented:&#10;&#10;Checkmarks for select urls, cleaned up the code a bit.&#10;&#10;Need:&#10;&#10;Add, Edit, Navigation Drawer.&#10;&#10;Problems:&#10;I forgot to add files to commit in the last push! Everything is here now." />
     <MESSAGE value="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textview of the same name! I think the problem occurs with the set tag method in the DragNSortAdapter" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textview of the same name! I think the problem occurs with the set tag method in the DragNSortAdapter" />
+    <MESSAGE value="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textviews that have the same name! I think the problem occurs within the DragNSortAdapter set tag method." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented:&#10;&#10;Finished Add,Edit.&#10;&#10;Need:&#10;&#10;Navigation Drawer.&#10;&#10;Problems:&#10;Drag and Sort doesn't work properly when there are two textviews that have the same name! I think the problem occurs within the DragNSortAdapter set tag method." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -2614,8 +2620,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/gmail/nelsonr462/crossover/ListUrlFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3325893">
-          <caret line="499" column="51" selection-start-line="499" selection-start-column="51" selection-end-line="499" selection-end-column="51" />
+        <state vertical-scroll-proportion="0.4800995">
+          <caret line="356" column="20" selection-start-line="356" selection-start-column="20" selection-end-line="356" selection-end-column="20" />
           <folding />
         </state>
       </provider>

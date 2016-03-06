@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -337,24 +338,37 @@ public class ListUrlFragment extends Fragment {
 
     private abstract class MyOnItemClickListener implements AdapterView.OnItemClickListener {
 
-        private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
+        private static final long DOUBLE_CLICK_TIME_DELTA = 500;//milliseconds
 
         private long lastClickTime = 0;
         private final DynamicListView mListView;
-
+        private boolean doubleClick = false;
         public MyOnItemClickListener(final DynamicListView listView) {
             mListView = listView;
         }
-
 
         @Override
         public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
             onClick(mListView, view, position);
             long clickTime = System.currentTimeMillis();
-            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+            if ( clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA ) {
+                doubleClick = true;
                 onDoubleClick(mListView, view, position);
             } else {
-                onSingleClick(mListView, view, position);
+                new CountDownTimer(800,1000) {
+
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        if ( !doubleClick ) {
+                            onSingleClick(mListView, view, position);
+                        }
+                        doubleClick = false;
+                    }
+                }.start();
             }
             lastClickTime = clickTime;
         }
