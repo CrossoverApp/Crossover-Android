@@ -1,9 +1,11 @@
 package com.gmail.nelsonr462.crossover;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -66,19 +70,8 @@ public class ListUrlFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             curGroupId = getArguments().getString("id");
-            mTabsView = new ArrayList<>();
-            mTabs = new ArrayList<>();
             getTabs = (Tab[]) getArguments().getParcelableArray("tabs");
-            if (getTabs.length != 0) {
-                for (Tab tab : getTabs) {
-                    if (!tab.getTitle().equals("")) {
-                        mTabsView.add(tab.getTitle());
-                    } else {
-                        mTabsView.add(tab.getUrl());
-                    }
-                    mTabs.add(tab.getUrl());
-                }
-            }
+            refreshTabsView();
         }
     }
 
@@ -89,14 +82,13 @@ public class ListUrlFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_list_url, container, false);
         mDynamicListView = (DynamicListView) rootView.findViewById(R.id.dynamiclistview);
         return rootView;
-
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        setDragNSortAdapter();
+        setDragNSortAdapter(true);
 
         mAllButton = (Button) getView().findViewById(R.id.open_all_urls_button);
         mAllButton.setOnClickListener(new View.OnClickListener() {
@@ -137,7 +129,7 @@ public class ListUrlFragment extends Fragment {
                         }
 
                         @Override
-                        public void onDoubleClick(View v) {
+                        public void onDoubleClick(DynamicListView mListView, View v, int position) {
                         }
                     });
 
@@ -165,7 +157,7 @@ public class ListUrlFragment extends Fragment {
                     } else {
                         //Display a dialog here!
                     }
-                    setDragNSortAdapter();
+                    setDragNSortAdapter(true);
                     mSelectButton.setTextOff(getString(R.string.select_specific_urls_button_textOff));
                     mAllButton.setText(getString(R.string.open_all_urls_button_text));
                     mAllButton.setOnClickListener(new View.OnClickListener() {
@@ -183,12 +175,17 @@ public class ListUrlFragment extends Fragment {
 
     }
 
-    private void setDragNSortAdapter() {
+    private void setDragNSortAdapter(boolean SwingBottomIn) {
         ArrayAdapter<String> myAdapter = new DragNDropAdapter(getActivity(), mTabsView);
         SimpleSwipeUndoAdapter simpleSwipeUndoAdapter = new SimpleSwipeUndoAdapter(myAdapter, getActivity(), new MyOnDismissCallback(myAdapter));
-        SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(simpleSwipeUndoAdapter);
-        animationAdapter.setAbsListView(mDynamicListView);
-        mDynamicListView.setAdapter(animationAdapter);
+        if (SwingBottomIn) {
+            SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(simpleSwipeUndoAdapter);
+            animationAdapter.setAbsListView(mDynamicListView);
+            mDynamicListView.setAdapter(animationAdapter);
+        } else {
+            simpleSwipeUndoAdapter.setAbsListView(mDynamicListView);
+            mDynamicListView.setAdapter(simpleSwipeUndoAdapter);
+        }
 
         mDynamicListView.enableDragAndDrop();
         mDynamicListView.setDraggableManager(new TouchViewDraggableManager(R.id.list_row_draganddrop_touchview));
@@ -202,24 +199,86 @@ public class ListUrlFragment extends Fragment {
 
             @Override
             public void onSingleClick(DynamicListView listView, View v, int position) {
-                Log.v("Main", "hi");
+                Intent intent = new Intent(Intent.ACTION_VIEW, convertToUri(getTabs[position].getUrl()));
+                startActivity(intent);
             }
 
             @Override
-            public void onDoubleClick(View v) {
+            public void onDoubleClick(final DynamicListView listview, final View v, final int position) {
 
+                View view = getActivity().getLayoutInflater().inflate(R.layout.activity_add_url, null);
+                Spinner mSpinner = (Spinner) view.findViewById(R.id.addUrlSpinner);
+                mSpinner.setVisibility(View.GONE);
+                Button mButton = (Button) view.findViewById(R.id.addUrlSaveButton);
+                mButton.setVisibility(View.GONE);
+                Button mButton2 = (Button) view.findViewById(R.id.addUrlCancelButton);
+                mButton2.setVisibility(View.GONE);
+                final EditText mEditTextTitle = (EditText) view.findViewById(R.id.addUrlTitle);
+                final EditText mEditTextUrl = (EditText) view.findViewById(R.id.addUrlText);
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Add a Url")
+                        .setView(view)
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                final String title = mEditTextTitle.getText().toString();
+                                final String url = mEditTextUrl.getText().toString();
+                                if (!url.isEmpty()) {
+                                    final ParseObject tab = new ParseObject(ParseConstant.KEY_TAB);
+                                    tab.put(ParseConstant.KEY_TAB_URL, url);
+                                    tab.put(ParseConstant.KEY_TAB_TITLE, title);
+
+                                    tab.saveInBackground(new SaveCallback() {
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                // Saved successfully.
+                                                getTabs = Tab.addTab(getTabs, new Tab(tab.getObjectId(), title, url), position);
+                                                saveCurrentGetTabs("add");
+                                                if (!title.isEmpty()) {
+                                                    listview.insert(position, title);
+                                                } else {
+                                                    listview.insert(position, url);
+                                                }
+                                            } else {
+                                                // The save failed.
+                                            }
+                                        }
+                                    });
+
+                                }
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                            }
+                        })
+                        .show();
             }
         });
         mDynamicListView.enableSimpleSwipeUndo();
     }
 
     private void showAllCheckMarks() {
-        ArrayAdapter<String> mAdapter = new DragNDropAdapter(getActivity(), mTabsView,0);
+        ArrayAdapter<String> mAdapter = new DragNDropAdapter(getActivity(), mTabsView, 0);
         SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(mAdapter);
         animationAdapter.setAbsListView(mDynamicListView);
         mDynamicListView.setAdapter(animationAdapter);
     }
 
+    private void refreshTabsView() {
+        mTabsView = new ArrayList<>();
+        mTabs = new ArrayList<>();
+        if (getTabs.length != 0) {
+            for (Tab tab : getTabs) {
+                if (!tab.getTitle().equals("")) {
+                    mTabsView.add(tab.getTitle());
+                } else {
+                    mTabsView.add(tab.getUrl());
+                }
+                mTabs.add(tab.getUrl());
+            }
+        }
+    }
 
     private Uri convertToUri(String url) {
         if (!url.contains("http://")) {
@@ -243,59 +302,20 @@ public class ListUrlFragment extends Fragment {
         @Override
         public void onItemMoved(final int startPosition, final int endPosition) {
 
+            if (endPosition - startPosition > 0) { //User dragging from top to bottom
+                Tab.dragTopNBot(getTabs, startPosition, endPosition);
+            } else {
+                Tab.dragBotNTop(getTabs, startPosition, endPosition);
+            }
+
             mSelectButton = (ToggleButton) getView().findViewById(R.id.select_specific_urls_button);
             mSelectButton.setText(getString(R.string.delete_url_confirmText));
-            final ProgressDialog mProgressDialog = new ProgressDialog(getActivity());
             mSelectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    if (endPosition - startPosition > 0) { //User dragging from top to bottom
-                        Tab.dragTopNBot(getTabs, startPosition, endPosition);
-                    } else {
-                        Tab.dragBotNTop(getTabs, startPosition, endPosition);
-                    }
-
                     mSelectButton.toggle();
-                    mProgressDialog.setMessage("Saving...");
-                    mProgressDialog.show();
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
-                    query.getInBackground(curGroupId, new GetCallback<ParseObject>() {
-                        @Override
-                        public void done(ParseObject TabGroup, ParseException e) {
-                            if (e == null) {
-                                JSONArray jArray = new JSONArray();
-                                int i = 0;
-                                for (Tab tempTab : getTabs) {
-                                    try {
-                                        jArray.put(i, tempTab.getObjectId());
-                                        i++;
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    }
-                                }
-                                TabGroup.put(ParseConstant.KEY_TABGROUP_TABS, jArray);
-                                TabGroup.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-
-                                        } else {
-                                            e.printStackTrace();
-                                        }
-                                        ((MainActivity) getActivity()).updateTabGroups(curGroupId, getTabs);
-                                        FragmentManager fragmentManager = getFragmentManager();
-                                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                        ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, getTabs);
-                                        fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
-                                        mProgressDialog.dismiss();
-                                    }
-                                });
-                            } else {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    saveCurrentGetTabs("drag");
                 }
             });
 
@@ -331,21 +351,23 @@ public class ListUrlFragment extends Fragment {
         public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
             onClick(mListView, view, position);
             long clickTime = System.currentTimeMillis();
-            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA){
-                onDoubleClick(view);
+            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                onDoubleClick(mListView, view, position);
             } else {
                 onSingleClick(mListView, view, position);
             }
             lastClickTime = clickTime;
         }
 
-        public abstract void onClick(DynamicListView listView,View v,int position);
-        public abstract void onSingleClick(DynamicListView listView,View v,int position);
-        public abstract void onDoubleClick(View v);
+        public abstract void onClick(DynamicListView listView, View v, int position);
+
+        public abstract void onSingleClick(DynamicListView listView, View v, int position);
+
+        public abstract void onDoubleClick(DynamicListView listView, View v, int position);
 
     }
 
-    private static class MyOnItemLongClickListener implements AdapterView.OnItemLongClickListener {
+    private class MyOnItemLongClickListener implements AdapterView.OnItemLongClickListener {
 
         private final DynamicListView mListView;
 
@@ -354,10 +376,71 @@ public class ListUrlFragment extends Fragment {
         }
 
         @Override
-        public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-            if (mListView != null) {
-                mListView.startDragging(position - mListView.getHeaderViewsCount());
-            }
+        public boolean onItemLongClick(final AdapterView<?> parent, final View parentView, final int position, final long id) {
+            final ProgressDialog mProgressDialog = new ProgressDialog(getActivity());
+
+            View view = getActivity().getLayoutInflater().inflate(R.layout.activity_add_url, null);
+            Spinner mSpinner = (Spinner) view.findViewById(R.id.addUrlSpinner);
+            mSpinner.setVisibility(View.GONE);
+            Button mButton = (Button) view.findViewById(R.id.addUrlSaveButton);
+            mButton.setVisibility(View.GONE);
+            Button mButton2 = (Button) view.findViewById(R.id.addUrlCancelButton);
+            mButton2.setVisibility(View.GONE);
+
+            final Tab temp = getTabs[position];
+
+            final EditText mEditTextTitle = (EditText) view.findViewById(R.id.addUrlTitle);
+            final EditText mEditTextUrl = (EditText) view.findViewById(R.id.addUrlText);
+            mEditTextTitle.setText(temp.getTitle());
+            mEditTextUrl.setText(temp.getUrl());
+
+
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Edit a Url")
+                    .setView(view)
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            mProgressDialog.setMessage("Saving...");
+                            mProgressDialog.show();
+                            final String title = mEditTextTitle.getText().toString();
+                            final String url = mEditTextUrl.getText().toString();
+                            if (!url.isEmpty()) {
+                                ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TAB);
+                                query.getInBackground(temp.getObjectId(), new GetCallback<ParseObject>() {
+                                    @Override
+                                    public void done(final ParseObject tab, ParseException e) {
+                                        if (e == null) {
+                                            tab.put(ParseConstant.KEY_TAB_URL, url);
+                                            tab.put(ParseConstant.KEY_TAB_TITLE, title);
+                                            tab.saveInBackground(new SaveCallback() {
+                                                @Override
+                                                public void done(ParseException e) {
+                                                    if (e == null) {
+                                                        temp.setTitle(title);
+                                                        temp.setUrl(url);
+                                                        mProgressDialog.dismiss();
+                                                        refreshTabsView();
+                                                        setDragNSortAdapter(false);
+                                                    } else {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    })
+
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    })
+                    .show();
+
             return true;
         }
     }
@@ -389,50 +472,11 @@ public class ListUrlFragment extends Fragment {
 
             mSelectButton = (ToggleButton) getView().findViewById(R.id.select_specific_urls_button);
             mSelectButton.setText(getString(R.string.delete_url_confirmText));
-            final ProgressDialog mProgressDialog = new ProgressDialog(getActivity());
             mSelectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mSelectButton.toggle();
-                    mProgressDialog.setMessage("Saving...");
-                    mProgressDialog.show();
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
-                    query.getInBackground(curGroupId, new GetCallback<ParseObject>() {
-                        @Override
-                        public void done(ParseObject TabGroup, ParseException e) {
-                            if (e == null) {
-                                JSONArray jArray = new JSONArray();
-                                int i = 0;
-                                for (Tab tempTab : getTabs) {
-                                    try {
-                                        jArray.put(i, tempTab.getObjectId());
-                                        i++;
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    }
-                                }
-                                TabGroup.put(ParseConstant.KEY_TABGROUP_TABS, jArray);
-                                TabGroup.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-
-                                        } else {
-                                            e.printStackTrace();
-                                        }
-                                        ((MainActivity)getActivity()).updateTabGroups(curGroupId, getTabs);
-                                        FragmentManager fragmentManager = getFragmentManager();
-                                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                        ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, getTabs);
-                                        fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
-                                        mProgressDialog.dismiss();
-                                    }
-                                });
-                            } else {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    saveCurrentGetTabs("delete");
                 }
             });
 
@@ -443,7 +487,7 @@ public class ListUrlFragment extends Fragment {
                 public void onClick(View v) {
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId,tempTabs);
+                    ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, tempTabs);
                     fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
                 }
             });
@@ -458,6 +502,53 @@ public class ListUrlFragment extends Fragment {
             );
             mToast.show();
         }
+    }
+
+    private void saveCurrentGetTabs(final String mode) {
+        final ProgressDialog mProgressDialog = new ProgressDialog(getActivity());
+        mProgressDialog.setMessage("Saving...");
+        mProgressDialog.show();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseConstant.KEY_TABGROUP);
+        query.getInBackground(curGroupId, new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject TabGroup, ParseException e) {
+                if (e == null) {
+                    JSONArray jArray = new JSONArray();
+                    int i = 0;
+                    for (Tab tempTab : getTabs) {
+                        try {
+                            jArray.put(i, tempTab.getObjectId());
+                            i++;
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    TabGroup.put(ParseConstant.KEY_TABGROUP_TABS, jArray);
+                    TabGroup.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                ((MainActivity) getActivity()).updateTabGroups(curGroupId, getTabs);
+                                if (mode.equals("add") || mode.equals("drag")) {
+                                    refreshTabsView();
+                                    setDragNSortAdapter(false);
+                                } else if (mode.equals("delete")) {
+                                    FragmentManager fragmentManager = getFragmentManager();
+                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                    ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, getTabs);
+                                    fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
+                                }
+                                mProgressDialog.dismiss();
+                            } else {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 }

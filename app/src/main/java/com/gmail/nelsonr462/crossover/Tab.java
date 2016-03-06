@@ -7,6 +7,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,6 +37,13 @@ public class Tab implements Parcelable{
             getTabs[i] = getTabs[i-1];
         }
         getTabs[endPosition] = mTab;
+        return getTabs;
+    }
+
+    public static Tab[] addTab(Tab[] getTabs, Tab newTab , int position) {
+        List<Tab> list = new ArrayList<>(Arrays.asList(getTabs));
+        list.add(position,newTab);
+        getTabs = list.toArray(new Tab[list.size()]);
         return getTabs;
     }
 
