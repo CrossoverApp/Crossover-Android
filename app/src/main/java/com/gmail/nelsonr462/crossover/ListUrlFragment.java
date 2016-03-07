@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.widget.CompoundButton;
 
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -96,8 +98,19 @@ public class ListUrlFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 for (String url : mTabs) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, convertToUri(url));
-                    startActivity(intent);
+//                    Intent intent = new Intent(Intent.ACTION_VIEW, convertToUri(url));
+//                    startActivity(intent);
+
+                    Intent intent=new Intent(Intent.ACTION_VIEW, convertToUri(url));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setPackage("com.android.chrome");
+                    try {
+                        getActivity().startActivity(intent);
+                    } catch (ActivityNotFoundException ex) {
+                        // Chrome browser presumably not installed so allow user to choose instead
+                        intent.setPackage(null);
+                        getActivity().startActivity(intent);
+                    }
                 }
             }
         });
@@ -202,14 +215,26 @@ public class ListUrlFragment extends Fragment {
 
             @Override
             public void onSingleClick(DynamicListView listView, View v, int position) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, convertToUri(getTabs[position].getUrl()));
-                startActivity(intent);
+//                Intent intent = new Intent(Intent.ACTION_VIEW, convertToUri(getTabs[position].getUrl()));
+//                startActivity(intent);
+                Intent intent=new Intent(Intent.ACTION_VIEW, convertToUri(getTabs[position].getUrl()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setPackage("com.android.chrome");
+                try {
+                    getActivity().startActivity(intent);
+                } catch (ActivityNotFoundException ex) {
+                    // Chrome browser presumably not installed so allow user to choose instead
+                    intent.setPackage(null);
+                    getActivity().startActivity(intent);
+                }
             }
 
             @Override
             public void onDoubleClick(final DynamicListView listview, final View v, final int position) {
 
                 View view = getActivity().getLayoutInflater().inflate(R.layout.activity_add_url, null);
+                TextView textView = (TextView) view.findViewById(R.id.addingToText);
+                textView.setVisibility(View.GONE);
                 Spinner mSpinner = (Spinner) view.findViewById(R.id.addUrlSpinner);
                 mSpinner.setVisibility(View.GONE);
                 Button mButton = (Button) view.findViewById(R.id.addUrlSaveButton);
@@ -220,7 +245,7 @@ public class ListUrlFragment extends Fragment {
                 final EditText mEditTextUrl = (EditText) view.findViewById(R.id.addUrlText);
 
                 new AlertDialog.Builder(getActivity())
-                        .setTitle("Add a Url")
+                        .setTitle("Add Tab")
                         .setView(view)
                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -389,7 +414,7 @@ public class ListUrlFragment extends Fragment {
 
 
             new AlertDialog.Builder(getActivity())
-                    .setTitle("Edit a Url")
+                    .setTitle("Edit Tab")
                     .setView(view)
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {

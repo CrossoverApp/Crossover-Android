@@ -11,25 +11,46 @@
         android:id="@+id/addUrlTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:gravity="top|left"
-        android:hint="title (optional)"/>
+        android:hint="Title (optional)"/>
 
 
     <EditText
         android:id="@+id/addUrlText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="10dp"
         android:ems="10"
-        android:hint="type or paste your URL"
+        android:hint="Enter a valid URL"
         android:inputType="textUri">
         <requestFocus/>
     </EditText>
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/addingToText"
+
+        android:text="Add to:"
+        />
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
         android:id="@+id/addUrlSpinner"
         android:spinnerMode = "dropdown"
         android:clickable="true"
@@ -39,12 +60,16 @@
         android:id="@+id/addUrlSaveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:text="Save"/>
 
     <Button
         android:id="@+id/addUrlCancelButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:text="Cancel"/>
 
 </LinearLayout>

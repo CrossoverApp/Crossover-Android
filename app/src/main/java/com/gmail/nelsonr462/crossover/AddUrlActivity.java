@@ -2,6 +2,7 @@ package com.gmail.nelsonr462.crossover;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,7 +19,7 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 
-public class AddUrlActivity extends Activity {
+public class AddUrlActivity extends AppCompatActivity {
 
     private ArrayList<String> mTabGroups;
     private ArrayList<String> mTabGroupsId;
@@ -48,6 +49,7 @@ public class AddUrlActivity extends Activity {
             mTabGroupsSpinner = (Spinner) findViewById(R.id.addUrlSpinner);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(AddUrlActivity.this, android.R.layout.simple_spinner_dropdown_item, mTabGroups);
             mTabGroupsSpinner.setAdapter(adapter);
+            mTabGroupsSpinner.setSelection(bundle.getInt(getString(R.string.CurrentTabGroup)));
         }
 
         mTabGroupsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
