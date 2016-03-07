@@ -109,6 +109,8 @@ public class ListUrlFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     showAllCheckMarks();
+                    mDynamicListView.disableDragAndDrop();
+                    mDynamicListView.disableSwipeToDismiss();
                     mSelectButton.setTextOn(getString(R.string.select_specific_urls_button_textOn));
                     mDynamicListView.setOnItemClickListener(new MyOnItemClickListener(mDynamicListView) {
                         @Override
@@ -308,37 +310,14 @@ public class ListUrlFragment extends Fragment {
             } else {
                 Tab.dragBotNTop(getTabs, startPosition, endPosition);
             }
-
-            mSelectButton = (ToggleButton) getView().findViewById(R.id.select_specific_urls_button);
-            mSelectButton.setText(getString(R.string.delete_url_confirmText));
-            mSelectButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    mSelectButton.toggle();
-                    saveCurrentGetTabs("drag");
-                }
-            });
-
-            mAllButton = (Button) getView().findViewById(R.id.open_all_urls_button);
-            mAllButton.setText(getString(R.string.cancel));
-            mAllButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, getTabs);
-                    fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
-                }
-            });
-
+            saveCurrentGetTabs("drag");
         }
 
     }
 
     private abstract class MyOnItemClickListener implements AdapterView.OnItemClickListener {
 
-        private static final long DOUBLE_CLICK_TIME_DELTA = 500;//milliseconds
+        private static final long DOUBLE_CLICK_TIME_DELTA = 1000;//milliseconds
 
         private long lastClickTime = 0;
         private final DynamicListView mListView;
@@ -483,28 +462,7 @@ public class ListUrlFragment extends Fragment {
             List<Tab> list = new ArrayList<>(Arrays.asList(getTabs));
             list.remove(delPosition);
             getTabs = list.toArray(new Tab[list.size()]);
-
-            mSelectButton = (ToggleButton) getView().findViewById(R.id.select_specific_urls_button);
-            mSelectButton.setText(getString(R.string.delete_url_confirmText));
-            mSelectButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSelectButton.toggle();
-                    saveCurrentGetTabs("delete");
-                }
-            });
-
-            mAllButton = (Button) getView().findViewById(R.id.open_all_urls_button);
-            mAllButton.setText(getString(R.string.cancel));
-            mAllButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    ListUrlFragment mFragment = ListUrlFragment.newInstance(curGroupId, tempTabs);
-                    fragmentTransaction.replace(R.id.content_main_ListUrlFrag, mFragment).commit();
-                }
-            });
+            saveCurrentGetTabs("delete");
 
             if (mToast != null) {
                 mToast.cancel();
