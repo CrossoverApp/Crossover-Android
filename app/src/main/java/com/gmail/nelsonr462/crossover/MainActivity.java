@@ -56,6 +56,14 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // *** PARSE LOGIN CHECK *** //
+        mCurrentUser = ParseUser.getCurrentUser();
+        if (mCurrentUser == null) {
+            navigateToLogin();
+        } else {
+            Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
+
+
         int[][] states = new int[][] {
                 new int[] { android.R.attr.state_enabled} // enabled
         };
@@ -74,22 +82,20 @@ public class MainActivity extends AppCompatActivity
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Montserrat-Regular.ttf");
         logoText.setTypeface(typeface);
 
-        // *** PARSE LOGIN CHECK *** //
-        mCurrentUser = ParseUser.getCurrentUser();
-        if (mCurrentUser == null) {
-            navigateToLogin();
-        } else {
-            Snackbar.make(findViewById(R.id.drawer_layout), "Logged in!", Snackbar.LENGTH_LONG).show();
-        }
+
 
         updateTabGroups("Please Wait...","Loading Your Tabs...", mUpdateControl);
-
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateTabGroups("","Loading..", mUpdateControl);
+        if(mCurrentUser == null) {
+            navigateToLogin();
+        } else {
+            updateTabGroups("", "Loading..", mUpdateControl);
+        }
     }
 
     @Override
