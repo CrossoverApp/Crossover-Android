@@ -22,6 +22,24 @@ public class Tab implements Parcelable{
     //Used in getTab Method
     private static Tab mTab;
 
+    protected Tab(Parcel in) {
+        mObjectId = in.readString();
+        mTitle = in.readString();
+        mUrl = in.readString();
+    }
+
+    public static final Creator<Tab> CREATOR = new Creator<Tab>() {
+        @Override
+        public Tab createFromParcel(Parcel in) {
+            return new Tab(in);
+        }
+
+        @Override
+        public Tab[] newArray(int size) {
+            return new Tab[size];
+        }
+    };
+
     public static Tab[] dragTopNBot(Tab[] getTabs,int startPosition, int endPosition){
         Tab mTab = getTabs[startPosition];
         for (int i = startPosition ; i < endPosition ; i++ ) {
@@ -106,6 +124,8 @@ public class Tab implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
+        dest.writeString(mObjectId);
+        dest.writeString(mTitle);
+        dest.writeString(mUrl);
     }
 }

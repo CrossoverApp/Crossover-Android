@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -73,7 +74,11 @@ public class ListUrlFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             curGroupId = getArguments().getString("id");
-            getTabs = (Tab[]) getArguments().getParcelableArray("tabs");
+            Parcelable[] mParcelable = getArguments().getParcelableArray("tabs");
+            getTabs = new Tab[mParcelable.length];
+            for ( int i = 0 ; i < mParcelable.length ; i++ ) {
+                getTabs[i] = (Tab)mParcelable[i];
+            }
             refreshTabsView();
         }
     }
