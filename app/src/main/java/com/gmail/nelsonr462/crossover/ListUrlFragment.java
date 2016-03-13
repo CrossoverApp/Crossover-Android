@@ -409,6 +409,8 @@ public class ListUrlFragment extends Fragment {
             mButton.setVisibility(View.GONE);
             Button mButton2 = (Button) view.findViewById(R.id.addUrlCancelButton);
             mButton2.setVisibility(View.GONE);
+            TextView addText = (TextView) view.findViewById(R.id.addingToText);
+            addText.setVisibility(View.GONE);
 
             final Tab temp = getTabs[position];
 
